@@ -1,34 +1,40 @@
 package wielowatkowosc;
 
-
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Wielowatkowosc 
 {
-    public static void main(String[] args) 
+    public static void main(String[] args) throws InterruptedException 
     {
         //Runnable wypisanie = new WypisanieRunnable();
         
-        /*Object lock = new Object();
+        Lock lock = new ReentrantLock();
         
         Thread watek = new Thread(new WypisanieRunnable(lock), "Watek 1");
         Thread watek2 = new Thread(new WypisanieRunnable(lock), "Watek 2");
         
         watek.start();
-        watek2.start();*/
+        watek.join();//jezeli chcemy poczekać aż jakiś wątek się zakończy używamy metody join()
         
-        Counter licznik = new Counter();
+        System.out.println(Thread.currentThread().getName());
+        System.out.println("cos się ztało po zakonczonym wątku watek");
+        
+        watek2.start();
+        
+        /*Counter licznik = new Counter();
         
         Thread watek3 = new Thread(new CounterRunnable(licznik, false), "Maleje");
         Thread watek4 = new Thread(new CounterRunnable(licznik, true), "Rośnie");
         
         watek3.start();
-        watek4.start();
+        watek4.start();*/
     }
 }
 
 class WypisanieRunnable implements Runnable
 {
-    public WypisanieRunnable(Object lock)
+    public WypisanieRunnable(Lock lock)
     {
         this.lock = lock;
     }
@@ -41,7 +47,9 @@ class WypisanieRunnable implements Runnable
     
     public void display(String threadName)
     {
-        synchronized (lock) 
+        lock.lock();//obsługa wątków synchronicznie za pomocą metody lock()
+        //pozwala na wykonywanie wątków w kolejmości ich wywołania
+        try
         {
             for(int i = 0; i < msg.length; i++)
             {
@@ -57,8 +65,12 @@ class WypisanieRunnable implements Runnable
                 }
             }
         }
+        finally
+        {
+            lock.unlock();
+        }
     }
-    private Object lock;
+    private Lock lock;
 }
 
 class Counter
